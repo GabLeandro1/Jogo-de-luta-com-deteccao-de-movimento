@@ -1,158 +1,317 @@
+
 import cv2
 import mediapipe as mp
 import psutil
 import socket
 import subprocess
-import customtkinter as ctk
 import threading
+import math
+import time
 
-# Função para salvar o nome
-def salvar_nome():
-    nome = entry.get()
-    with open("F:/Projetos ou coisas do técnico/jogo de box/nome_usuario.txt", "w") as arquivo:
-        arquivo.write(f"{nome}\n")
-    janela.destroy()
+# =========================
+# CONFIGURAÇÕES
+# =========================
 
-# Verifica se o Unity está em execução
+UNITY_PATH = r"C:\Program Files\Unity\Editor\Unity.exe"
+PROJECT_PATH = r"C:\Users\gabri\Downloads\jogo de box (definitivo)\jogo de box"
+
+UDP_ADDRESS = ("localhost", 12345)
+
+PROXIMITY_THRESHOLD = -0.1
+DEFENSE_DISTANCE = 0.2
+DEFENSE_HEIGHT = 0.5
+
+PUNCH_COOLDOWN = 0.5
+
+
+# =========================
+# COMUNICAÇÃO UDP
+# =========================
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+def enviar_comando(comando):
+    try:
+        sock.sendto(comando.encode(), UDP_ADDRESS)
+    except Exception as e:
+        print(f"Erro ao enviar comando: {e}")
+
+
+def send_key_E_press():
+    enviar_comando("E_PRESSED")
+
+
+def send_key_Q_press():
+    enviar_comando("Q_PRESSED")
+
+
+def send_defesa():
+    enviar_comando("Defesa")
+
+
+def send_neutro():
+    enviar_comando("NEUTRO")
+
+
+# =========================
+# VERIFICAR UNITY
+# =========================
+
 def is_unity_running():
-    unity_process_name = "Unity.exe"
     for process in psutil.process_iter(['name']):
-        if process.info['name'] == unity_process_name:
-            return True
+        try:
+            if process.info['name'] == "Unity.exe":
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
     return False
 
-# Função para obter a cena ativa via socket
-def get_active_scene():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_address = ('localhost', 12346)
-    scene_name = None
-    try:
-        message = "GET_SCENE"
-        sock.sendto(message.encode(), server_address)
-        data, _ = sock.recvfrom(4096)
-        scene_name = data.decode()
-    except Exception as e:
-        print("Erro ao obter a cena ativa:", e)
-    finally:
-        sock.close()
-    return scene_name
 
-# Enviar comando para pressionar tecla 'E'
-def send_key_E_press():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_address = ('localhost', 12345)
-    try:
-        message = "E_PRESSED"
-        sock.sendto(message.encode(), server_address)
-    finally:
-        sock.close()
+# =========================
+# DISTÂNCIA
+# =========================
 
-# Enviar comando para pressionar tecla 'Q'
-def send_key_Q_press():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_address = ('localhost', 12345)
-    try:
-        message = "Q_PRESSED"
-        sock.sendto(message.encode(), server_address)
-    finally:
-        sock.close()
+def calcular_distancia(p1, p2):
+    return math.sqrt(
+        (p1[0] - p2[0]) ** 2 +
+        (p1[1] - p2[1]) ** 2
+    )
 
-# Função para processar a captura da câmera e detecção de mãos em um thread separado
+
+# =========================
+# DEFESA
+# =========================
+
+def is_defending(hand_positions):
+    if len(hand_positions) != 2:
+        return False
+
+    wrist_left = hand_positions[0]
+    wrist_right = hand_positions[1]
+
+    distancia = calcular_distancia(wrist_left, wrist_right)
+
+    return (
+        distancia < DEFENSE_DISTANCE
+        and wrist_left[1] < DEFENSE_HEIGHT
+        and wrist_right[1] < DEFENSE_HEIGHT
+    )
+
+
+# =========================
+# CÂMERA / MEDIAPIPE
+# =========================
+
 def processar_camera():
-    # Inicializar MediaPipe e OpenCV
+
     mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands()
     mp_drawing = mp.solutions.drawing_utils
+
+    hands = mp_hands.Hands(
+        max_num_hands=2,
+        min_detection_confidence=0.6,
+        min_tracking_confidence=0.6
+    )
+
     cap = cv2.VideoCapture(0)
 
-    # Configurações de proximidade
-    proximity_threshold = -0.1
+    defesa_ativa = False
 
-    # Loop principal
+    soco_esquerdo_ativo = False
+    soco_direito_ativo = False
+
+    ultimo_soco_esquerdo = 0
+    ultimo_soco_direito = 0
+
     while cap.isOpened():
-        # Captura e processa a imagem da câmera
+
         ret, frame = cap.read()
+
         if not ret:
             break
+
+        frame = cv2.flip(frame, 1)
+
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(image)
 
+        hand_positions = []
+
+        esquerda_z = None
+        direita_z = None
+
         if results.multi_hand_landmarks:
-            for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+            for hand_landmarks in results.multi_hand_landmarks:
+
+                mp_drawing.draw_landmarks(
+                    frame,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS
+                )
+
+                wrist = hand_landmarks.landmark[0]
+
+                wrist_x = wrist.x
+                wrist_y = wrist.y
 
                 hand_center_z = hand_landmarks.landmark[-4].z
-                wrist_x = hand_landmarks.landmark[0].x
 
+                hand_positions.append((wrist_x, wrist_y))
+
+                # Identificação pela posição horizontal da mão
                 if wrist_x < 0.5:
-                    hand_label_text = "Mão Esquerda"
-                    if hand_center_z < proximity_threshold:
-                        send_key_Q_press()
+
+                    esquerda_z = hand_center_z
+
                 else:
-                    hand_label_text = "Mão Direita"
-                    if hand_center_z < proximity_threshold:
+
+                    direita_z = hand_center_z
+
+        # =========================
+        # DETECTAR DEFESA
+        # =========================
+
+        defending = is_defending(hand_positions)
+
+        if defending:
+
+            # Só envia quando a defesa começa
+            if not defesa_ativa:
+                send_defesa()
+
+            defesa_ativa = True
+
+            # Impede golpes durante a defesa
+            soco_esquerdo_ativo = False
+            soco_direito_ativo = False
+
+            cv2.putText(
+                frame,
+                "DEFESA ATIVA",
+                (20, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0),
+                2
+            )
+
+        else:
+
+            # Defesa acabou
+            if defesa_ativa:
+                send_neutro()
+
+            defesa_ativa = False
+
+            cv2.putText(
+                frame,
+                "ESTADO NORMAL",
+                (20, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2
+            )
+
+            tempo_atual = time.time()
+
+            # =========================
+            # SOCO ESQUERDO
+            # =========================
+
+            if esquerda_z is not None:
+
+                if esquerda_z < PROXIMITY_THRESHOLD:
+
+                    if (
+                        not soco_esquerdo_ativo
+                        and tempo_atual - ultimo_soco_esquerdo >= PUNCH_COOLDOWN
+                    ):
+
+                        send_key_Q_press()
+
+                        soco_esquerdo_ativo = True
+                        ultimo_soco_esquerdo = tempo_atual
+
+                else:
+                    soco_esquerdo_ativo = False
+
+            else:
+                soco_esquerdo_ativo = False
+
+            # =========================
+            # SOCO DIREITO
+            # =========================
+
+            if direita_z is not None:
+
+                if direita_z < PROXIMITY_THRESHOLD:
+
+                    if (
+                        not soco_direito_ativo
+                        and tempo_atual - ultimo_soco_direito >= PUNCH_COOLDOWN
+                    ):
+
                         send_key_E_press()
 
-                cv2.putText(frame, hand_label_text, (10, 30 * (idx + 1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        soco_direito_ativo = True
+                        ultimo_soco_direito = tempo_atual
 
-        # Exibe a imagem processada
-        cv2.imshow('Hand Detection', frame)
+                else:
+                    soco_direito_ativo = False
 
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+            else:
+                soco_direito_ativo = False
+
+        # =========================
+        # EXIBIR CÂMERA
+        # =========================
+
+        cv2.imshow("Controle do jogo de boxe", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # Libere recursos
+    # =========================
+    # ENCERRAR
+    # =========================
+
+    if defesa_ativa:
+        send_neutro()
+
     cap.release()
+    hands.close()
     cv2.destroyAllWindows()
 
-# Função principal que verifica a cena e exibe a janela de entrada de nome
-def verificar_cena():
-    ultima_cena = None
-    while True:
-        if is_unity_running():
-            cena_atual = get_active_scene()
 
-            # Verifique se a cena mudou e se é a "tela de titulo"
-            if cena_atual != ultima_cena:
-                ultima_cena = cena_atual  # Atualize a última cena
+# =========================
+# INICIAR UNITY
+# =========================
 
-                if cena_atual == "tela de titulo":
-                    # Exiba a janela de entrada de nome no thread principal
-                    janela_nome()
+if not is_unity_running():
 
-# Função para exibir a janela de entrada de nome
-def janela_nome():
-    ctk.set_appearance_mode("System")
-    ctk.set_default_color_theme("blue")
+    subprocess.Popen([
+        UNITY_PATH,
+        "-projectPath", PROJECT_PATH,
+        "-executeMethod", "PlayModeInitializer.PlayGame"
+    ])
 
-    global janela, entry
-    janela = ctk.CTk()
-    janela.title("Nome")
-    janela.geometry("300x200")
+    print("Iniciando o Unity...")
 
-    label_instrucoes = ctk.CTkLabel(janela, text="Digite seu nome completo:")
-    label_instrucoes.pack(pady=10)
+else:
 
-    entry = ctk.CTkEntry(janela, width=200)
-    entry.pack(pady=10)
+    print("Unity já está em execução.")
 
-    botao_salvar = ctk.CTkButton(janela, text="Salvar", command=salvar_nome)
-    botao_salvar.pack(pady=10)
 
-    label_resultado = ctk.CTkLabel(janela, text="")
-    label_resultado.pack(pady=10)
+# =========================
+# INICIAR CÂMERA
+# =========================
 
-    janela.mainloop()
-
-# Iniciar Unity e abrir o projeto
-unity_path = r"C:\Program Files\Unity\Hub\Editor\2017.4.40f1\Editor\Unity.exe"
-project_path = r"F:\Projetos ou coisas do técnico\jogo de box"
-subprocess.Popen([unity_path, "-projectPath", project_path, "-executeMethod", "PlayModeInitializer.PlayGame"])
-print('Iniciando o Unity...')
-
-# Iniciar a captura da câmera em um thread separado
 camera_thread = threading.Thread(target=processar_camera)
 camera_thread.start()
 
-# Iniciar a verificação da cena no thread principal (onde roda o tkinter)
-verificar_cena()
+camera_thread.join()
+
+sock.close()
