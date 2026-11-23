@@ -1,50 +1,47 @@
-# 🎮 Jogo 2D com Detecção de Movimento
+# 🎮 Jogo 2D de Luta com Detecção de Movimento
+
 ## 📌 Sobre o projeto
 
-Este projeto consiste no desenvolvimento de um jogo 2D utilizando a **Unity**, integrado a um sistema de detecção de movimentos desenvolvido em **Python**.
+Este projeto consiste no desenvolvimento de um jogo de luta em 2D utilizando **Unity**, integrado a um sistema de detecção de movimentos desenvolvido em **Python**.
 
-O objetivo é permitir que o jogador interaja com o jogo através de movimentos capturados pela câmera, utilizando Python para detectar os movimentos e possibilitar o controle do personagem dentro do ambiente virtual.
+O jogador interage com o jogo por meio de movimentos físicos capturados pela câmera. O sistema desenvolvido em Python processa esses movimentos, permitindo que sejam utilizados como comandos para controlar o personagem dentro do ambiente virtual.
 
-O projeto une desenvolvimento de jogos, programação e visão computacional, explorando novas formas de interação entre o jogador e o jogo.
+O projeto combina desenvolvimento de jogos, programação e visão computacional, explorando uma forma alternativa e interativa de jogar, sem depender exclusivamente dos controles tradicionais.
 
 ---
 
 ## 🎯 Objetivo
 
-Desenvolver um jogo 2D com controle baseado em movimentos físicos, utilizando a integração entre Unity e Python para proporcionar uma experiência interativa diferente dos controles tradicionais.
+Desenvolver um jogo de luta 2D com controle baseado em movimentos físicos, integrando Unity e Python para proporcionar uma experiência de jogo interativa e dinâmica.
 
 ---
 
 ## 🛠️ Tecnologias utilizadas
 
-- **Unity** — Desenvolvimento do ambiente e gameplay 2D.
-- **C#** — Scripts, mecânicas e lógica do jogo.
-- **Python** — Sistema de detecção de movimentos.
+- **Unity** — Desenvolvimento do ambiente e das mecânicas do jogo.
+- **C#** — Programação dos scripts, movimentação e lógica do jogo.
+- **Python** — Captura e detecção de movimentos.
 - **Git e GitHub** — Versionamento e gerenciamento do projeto.
 
 ---
 
 ## 📷 Demonstração
+
 ### 🎮 Tela de início
 
-<img width="903" height="411" alt="image" src="https://github.com/user-attachments/assets/35826827-bcf8-4e8f-9d58-0aa3f082e819" />
+<img width="903" height="411" alt="Tela de início" src="https://github.com/user-attachments/assets/35826827-bcf8-4e8f-9d58-0aa3f082e819" />
 
 ### 🕹️ Gameplay
 
-<img width="901" height="412" alt="image" src="https://github.com/user-attachments/assets/51629564-65b1-413b-8612-7d3caf1016a7" />
+<img width="901" height="412" alt="Gameplay" src="https://github.com/user-attachments/assets/51629564-65b1-413b-8612-7d3caf1016a7" />
 
-### 🏆 Tela de derrota
+### 💀 Tela de derrota
 
-<img width="900" height="410" alt="image" src="https://github.com/user-attachments/assets/44dd45f9-bda3-4103-9816-89da27137135" />
-
-
+<img width="900" height="410" alt="Tela de derrota" src="https://github.com/user-attachments/assets/44dd45f9-bda3-4103-9816-89da27137135" />
 
 ### 🏆 Tela de vitória
 
-<img width="903" height="414" alt="image" src="https://github.com/user-attachments/assets/63534d47-6ce5-42b8-bfc6-07962cc15c10" />
-
-
-
+<img width="903" height="414" alt="Tela de vitória" src="https://github.com/user-attachments/assets/63534d47-6ce5-42b8-bfc6-07962cc15c10" />
 
 ---
 
@@ -54,57 +51,63 @@ Desenvolver um jogo 2D com controle baseado em movimentos físicos, utilizando a
 meu-projeto/
 │
 ├── Assets/
-│   ├── Animations/         # Animações do jogo
-│   ├── Animators/          # Controladores de animação
-│   ├── Scenes/             # Cenas do jogo
-│   ├── Scripts/            # Scripts C# e lógica do jogo
-│   └── Sprites/            # Sprites e imagens 2D
+│   ├── Animations/          # Animações
+│   ├── Animators/           # Controladores de animação
+│   ├── Scenes/              # Cenas do jogo
+│   ├── Scripts/             # Scripts C# e lógica
+│   └── Sprites/             # Imagens e sprites 2D
 │
-├── Packages/               # Pacotes e dependências
+├── Packages/                 # Pacotes e dependências
+├── ProjectSettings/          # Configurações da Unity
+├── UnityPackageManager/      # Gerenciamento de pacotes
 │
-├── ProjectSettings/        # Configurações do projeto Unity
-│
-├── UnityPackageManager/    # Gerenciamento de pacotes Unity
-│
-├── codigo_python.py        # Sistema de detecção de movimentos
-│
-├── .gitattributes          # Configurações de atributos do Git
-│
-├── .gitignore              # Arquivos ignorados pelo Git
-│
-└── README.md               # Documentação do projeto
+├── codigo_python.py         # Sistema de detecção de movimentos
+├── .gitattributes           # Configurações de atributos do Git
+├── .gitignore               # Arquivos ignorados pelo Git
+└── README.md                # Documentação do projeto
 ```
 
-> As subpastas de `Assets` são uma representação organizacional sugerida. A estrutura principal corresponde ao repositório atual.
+> A estrutura apresentada representa a organização principal do repositório.
 
 ---
 
 ## ⚙️ Funcionamento
 
-O projeto integra duas tecnologias principais: Unity e Python.
+O funcionamento do projeto ocorre por meio da integração entre a câmera, Python e Unity:
 
-1. A câmera captura os movimentos do jogador.
-2. O script Python processa as informações capturadas.
-3. Os movimentos são identificados pelo sistema.
-4. Os comandos são utilizados para controlar o personagem.
-5. O jogo responde aos movimentos realizados pelo jogador.
+1. A câmera captura os movimentos físicos do jogador.
+2. O Python processa as informações recebidas da câmera.
+3. O sistema identifica os movimentos realizados.
+4. Os movimentos detectados são convertidos em comandos.
+5. Os comandos são utilizados para controlar o personagem.
+6. A Unity executa as ações correspondentes dentro do jogo.
 
 ---
 
 ## 🎮 Funcionalidades
 
-- Desenvolvimento de ambiente 2D na Unity.
-- Integração com script Python.
-- Detecção de movimentos.
-- Controle de personagem.
+- Jogo de luta em ambiente 2D.
+- Controle do personagem por detecção de movimentos.
+- Integração entre Unity e Python.
+- Captura de movimentos utilizando câmera.
+- Mecânicas de combate.
 - Sistema de pontuação.
-- Tela de vitória.
+- Tela de vitória e derrota.
+- Interface inicial para iniciar o jogo.
 
 ---
 
-## 🚀 Como executar
+## 🚀 Como executar o projeto
 
-### Unity
+### ⚠️ Configuração necessária
+
+Antes de executar o projeto, é necessário atualizar os **caminhos absolutos** presentes nos scripts ou arquivos de configuração que utilizam diretórios específicos do computador do desenvolvedor.
+
+Substitua os caminhos existentes pelos caminhos correspondentes à localização do projeto no seu computador.
+
+Caso essa alteração não seja realizada, funcionalidades como carregamento de cenas, inicialização de scripts ou comunicação entre os componentes poderão apresentar erros.
+
+### 🎮 Executando pela Unity
 
 1. Clone o repositório:
 
@@ -115,43 +118,44 @@ git clone https://github.com/GabLeandro1/NOME-DO-REPOSITORIO.git
 2. Abra o Unity Hub.
 3. Clique em **Add Project from Disk**.
 4. Selecione a pasta do projeto clonado.
-5. Abra o projeto com uma versão compatível da Unity.
-6. Execute a cena principal.
+5. Abra o projeto utilizando uma versão compatível da Unity.
+6. Verifique se as cenas necessárias estão incluídas no Build Profile.
+7. Abra a cena inicial.
+8. Execute o projeto pelo botão **Play**.
 
-### Python
+### 🐍 Executando o Python
 
-1. Instale o Python.
+1. Certifique-se de que o Python está instalado.
 2. Abra um terminal na pasta do projeto.
-3. Execute o script:
+3. Execute o script de detecção de movimentos:
 
 ```bash
 python codigo_python.py
 ```
 
-Caso sejam necessárias bibliotecas externas, instale as dependências antes da execução.
+4. Permita o acesso à câmera, caso solicitado.
+5. Mantenha o script Python executando enquanto utiliza o jogo, caso a integração dependa dele.
+
+> Caso o projeto utilize bibliotecas externas, elas deverão ser instaladas previamente.
 
 ---
 
-## 📚 Aprendizados
+## 📚 Aprendizados e desenvolvimento
 
-Durante o desenvolvimento, são trabalhados conceitos de:
+O desenvolvimento deste projeto envolve o estudo e a aplicação de diferentes conceitos, como:
 
 - Desenvolvimento de jogos 2D.
 - Programação em C#.
 - Programação em Python.
-- Detecção e reconhecimento de movimentos.
-- Integração entre diferentes tecnologias.
-- Git e GitHub.
-- Lógica de programação e desenvolvimento de mecânicas.
+- Visão computacional e detecção de movimentos.
+- Integração entre diferentes linguagens e tecnologias.
+- Desenvolvimento de interfaces e mecânicas de jogo.
+- Lógica de programação.
+- Versionamento de código com Git.
+- Organização e documentação de projetos.
 
 ---
 
-## 👨‍💻 Autor
-
-**GabLeandro1**
-
-
-
----
-
-⭐ Se gostou do projeto, deixe uma estrela no repositório!
+<p align="center">
+  Desenvolvido como projeto da feira técnica de 2024, ocorrida no Colégios Univap unidade: centro
+</p>
