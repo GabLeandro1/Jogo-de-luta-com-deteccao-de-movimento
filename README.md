@@ -1,11 +1,4 @@
 # 🎮 Jogo 2D com Detecção de Movimento
-
-\<p align="center">
-&#x20; \<img src="[https://img.shields.io/badge/Unity-2D-black?logo=unity](https://img.shields.io/badge/Unity-2D-black?logo=unity)" />
-&#x20; \<img src="[https://img.shields.io/badge/Python-Detection-blue?logo=python](https://img.shields.io/badge/Python-Detection-blue?logo=python)" />
-&#x20; \<img src="[https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow](https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow)" />
-\</p>
-
 ## 📌 Sobre o projeto
 
 Este projeto consiste no desenvolvimento de um jogo 2D utilizando a **Unity**, integrado a um sistema de detecção de movimentos desenvolvido em **Python**.
@@ -34,15 +27,22 @@ Desenvolver um jogo 2D com controle baseado em movimentos físicos, utilizando a
 ## 📷 Demonstração
 ### 🎮 Tela de início
 
-\<!-- Adicione uma imagem do jogo aqui -->
+<img width="903" height="411" alt="image" src="https://github.com/user-attachments/assets/35826827-bcf8-4e8f-9d58-0aa3f082e819" />
 
 ### 🕹️ Gameplay
 
-\<!-- Adicione uma imagem do jogo aqui -->
+<img width="901" height="412" alt="image" src="https://github.com/user-attachments/assets/51629564-65b1-413b-8612-7d3caf1016a7" />
+
+### 🏆 Tela de derrota
+
+<img width="900" height="410" alt="image" src="https://github.com/user-attachments/assets/44dd45f9-bda3-4103-9816-89da27137135" />
+
+
 
 ### 🏆 Tela de vitória
 
-\<!-- Adicione uma imagem da tela de vitória aqui -->
+<img width="903" height="414" alt="image" src="https://github.com/user-attachments/assets/63534d47-6ce5-42b8-bfc6-07962cc15c10" />
+
 
 
 
